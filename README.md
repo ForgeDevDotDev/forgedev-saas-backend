@@ -1,52 +1,87 @@
 # ForgeDev SaaS Backend
 
-> Backend API for the SaaS domain — tenants, users, RBAC, analytics, settings
+Multi-tenant analytics SaaS backend built with Express, TypeScript, Prisma, and SQLite.
 
-**Part of [ForgeDev](https://forgedev.dev)** — Structured work simulation for junior developers.
+## Features
 
----
+- **Multi-tenant architecture** with data isolation per tenant
+- **RBAC** (Role-Based Access Control) with admin, editor, and viewer roles
+- **Analytics events** storage and aggregation queries
+- **Dashboard & Widget** management per tenant
+- **Team management** with invitations
+- **Settings** per tenant
 
-## 📜 License
+## Tech Stack
 
-This project is dual-licensed:
+- Express.js — Web framework
+- TypeScript — Type safety
+- Prisma — ORM with SQLite
+- Zod — Schema validation (partially implemented)
 
-| Version | License | Use Case |
-|---------|---------|----------|
-| Community | AGPL-3.0 | Free for personal and open-source use. Network service modifications must be published. |
-| Commercial | Commercial License | For organizations that want to use this project without AGPL obligations. Contact **info@forgedev.dev** |
+## Getting Started
 
-See [LICENSE](./LICENSE), [COMMERCIAL-LICENSE.md](./COMMERCIAL-LICENSE.md), and [CLA.md](./CLA.md) for details.
+```bash
+# Install dependencies
+npm install
 
----
+# Generate Prisma client
+npx prisma generate
 
-## 🤝 Contributing
+# Run migrations
+npx prisma migrate dev --name init
 
-Contributions are welcome! Please read:
+# Seed the database
+npm run prisma:seed
 
-- [CONTRIBUTING.md](./CONTRIBUTING.md) — Contribution guide, revenue sharing model, and PR process
-- [CLA.md](./CLA.md) — Contributor License Agreement (must sign before merging)
+# Start development server
+npm run dev
+```
 
----
+## API Routes
 
-## 🏗 Project Structure
+| Route | Description |
+|-------|-------------|
+| `POST /api/auth/register` | Register new user |
+| `POST /api/auth/login` | Login |
+| `POST /api/auth/refresh` | Refresh token |
+| `GET /api/auth/me` | Get current user |
+| `GET /api/tenants` | Get current tenant |
+| `PUT /api/tenants/:id` | Update tenant |
+| `GET /api/users` | List tenant users |
+| `POST /api/users` | Create user |
+| `PUT /api/users/:id` | Update user |
+| `PUT /api/users/:id/role` | Assign role |
+| `GET /api/roles` | List roles |
+| `POST /api/roles` | Create role |
+| `GET /api/dashboards` | List dashboards |
+| `POST /api/dashboards` | Create dashboard |
+| `GET /api/widgets` | List widgets |
+| `POST /api/widgets` | Create widget |
+| `GET /api/analytics/events` | List events |
+| `GET /api/analytics/aggregate` | Aggregate query |
+| `GET /api/analytics/summary` | Summary stats |
+| `GET /api/analytics/export` | Export data (CSV) |
+| `GET /api/settings` | Get settings |
+| `PUT /api/settings` | Update settings |
+| `GET /api/team` | List team |
+| `POST /api/team/invite` | Invite member |
+| `DELETE /api/team/:id` | Remove member |
 
-> TODO: Document the project structure once the codebase is built.
+## Seed Data
 
----
+The seed creates two Spanish SaaS companies:
+- **RecursosHR Analytics** — HR analytics platform (pro plan)
+- **NóminaPro** — Payroll management (enterprise plan)
 
-## 🔗 Links
+Default users:
+- admin@recursoshr.com / admin123
+- editor@recursoshr.com / editor123
+- viewer@recursoshr.com / viewer123
 
-- **ForgeDev:** https://forgedev.dev
-- **GitHub Org:** https://github.com/ForgeDevDotDev
-- **Contact:** info@forgedev.dev
+## Known Issues
 
----
+See `KNOWN-ISSUES.md` for a list of bugs and incomplete features suitable for practice.
 
-## 📁 Related Repositories
+## License
 
-Backend API for the **SaaS** domain. Serves these frontends:
-
-| Repo | Framework |
-|------|-----------|
-| forgedev-saas-react | React |
-| forgedev-saas-vue | Vue |
+See `LICENSE` and `CLA.md` for licensing information.

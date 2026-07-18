@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  plan      String   @default("free") // free, pro, enterprise
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users      User[]
+  dashboards Dashboard[]
+  settings   Settings?
+  teamMembers TeamMember[]
+  events    AnalyticsEvent[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userRoles UserRole[]
+}
+
+model Role {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String?
+
+  permissions Permission[]
+  userRoles   UserRole[]
+}
+
+model Permission {
+  id     String @id @default(cuid())
+  name   String @unique
+  roleId String
+  role   Role   @relation(fields: [roleId], references: [id])
+}
+
+model UserRole {
+  id     String @id @default(cuid())
+  userId String
+  roleId String
+  user   User   @relation(fields: [userId], references: [id])
+  role   Role   @relation(fields: [roleId], references: [id])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  eventType String
+  value     Float
+  label     String
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, eventType])
+}
+
+model Dashboard {
+  id        String   @id @default(cuid())
+  name      String
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  widgets Widget[]
+}
+
+model Widget {
+  id          String  @id @default(cuid())
+  dashboardId String
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id])
+  type        String // line, bar, table, metric
+  title       String
+  dataSource  String // e.g. "analytics_events", "custom"
+  config      String // JSON config stored as string
+  position    Int    @default(0)
+  width       Int    @default(6)
+  height      Int    @default(4)
+}
+
+model Settings {
+  id           String  @id @default(cuid())
+  tenantId     String  @unique
+  tenant       Tenant  @relation(fields: [tenantId], references: [id])
+  theme        String  @default("light")
+  language     String  @default("es")
+  timezone     String  @default("Europe/Madrid")
+  notificationsEnabled Boolean @default(true)
+  exportFormat String  @default("csv") // csv, xlsx, json
+  retentionDays Int    @default(90)
+}
+
+model TeamMember {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  email    String
+  role     String @default("viewer") // admin, editor, viewer
+  status   String @default("pending") // pending, active, removed
+  invitedAt DateTime @default(now())
+  joinedAt DateTime?
+}
